@@ -9,7 +9,7 @@ var canvas = document.getElementById("canvas"),
     height = 600,
     player = {
         x: 20,
-        y: 0,
+        y: 100,
         width: 5,
         height: 5,
         speed: 2,
@@ -21,9 +21,9 @@ var canvas = document.getElementById("canvas"),
         rwalljump: false
     },
     keys = [],
-    friction = 0.8,
-    airfriction = 0.99,
-    gravity = 0.18;
+    friction = 0.65,
+    airfriction = 0.98,
+    gravity = 0.17;
 
 var boxes = [];
 
@@ -49,34 +49,47 @@ boxes.push({
 
 boxes.push({
     x: 10,
-    y: 100,
+    y: height-300,
+    width: 220,
+    height: 300
+});
+boxes.push({
+    x: 310,
+    y: height-300,
+    width: 30,
+    height: 300
+});
+boxes.push({
+    x: 410,
+    y: height-300,
+    width: 30,
+    height: 300
+});
+boxes.push({
+    x: 510,
+    y: height-300,
+    width: 30,
+    height: 300
+});
+boxes.push({
+    x: 610,
+    y: height-300,
+    width: 30,
+    height: 300
+});
+boxes.push({
+    x: 710,
+    y: height-300,
+    width: 30,
+    height: 300
+});
+boxes.push({
+    x: 970,
+    y: height-200,
     width: 30,
     height: 200
 });
-boxes.push({
-    x: 70,
-    y: 100,
-    width: 30,
-    height: 200
-});
-boxes.push({
-    x: 130,
-    y: 100,
-    width: 30,
-    height: 200
-});
-boxes.push({
-    x: 190,
-    y: 100,
-    width: 30,
-    height: 150
-});
-boxes.push({
-    x: 250,
-    y: 100,
-    width: 30,
-    height: 150
-});
+
 
 canvas.width = width;
 canvas.height = height;
@@ -95,13 +108,24 @@ function update() {
     if (keys[39] || keys[68]) {
         // right arrow
         if (player.velX < player.speed) {
+        	if (player.grounded) {
+        		player.velX+=0.15
+        	}
+        	else {
             player.velX+=0.5;
+        	}
         }
+
     }
     if (keys[37] || keys[65]) {
         // left arrow
         if (player.velX > -player.speed) {
+            if (player.grounded) {
+        		player.velX-=0.15
+        	}
+        	else {
             player.velX-=0.5;
+        	}
         }
     }
 
@@ -133,7 +157,6 @@ function update() {
     player.lwalljump = false;
     for (var i = 0; i < boxes.length; i++) {
         ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
-        
         var dir = colCheck(player, boxes[i]);
         //if (dir === null) {
         //	player.jumpcounter = false;
@@ -162,8 +185,8 @@ function update() {
 
     ctx.fill();
     ctx.fillStyle = "red";
+    ctx.fillRect(980, height - 205, 5, 5);
     ctx.fillRect(player.x, player.y, player.width, player.height);
-
     requestAnimationFrame(update);
 }
 

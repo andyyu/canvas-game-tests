@@ -5,22 +5,25 @@
 
 var canvas = document.getElementById("canvas"),
     ctx = canvas.getContext("2d"),
-    width = 500,
-    height = 200,
+    width = 1000,
+    height = 600,
     player = {
-        x: width / 2,
-        y: height - 15,
+        x: 20,
+        y: 0,
         width: 5,
         height: 5,
-        speed: 3,
-        velX: 0,
+        speed: 2,
+        velX: 0,	
         velY: 0,
         jumping: false,
-        grounded: false
+        grounded: false,
+        lwalljump: false,	
+        rwalljump: false
     },
     keys = [],
     friction = 0.8,
-    gravity = 0.3;
+    airfriction = 0.99,
+    gravity = 0.18;
 
 var boxes = [];
 
@@ -45,28 +48,34 @@ boxes.push({
 });
 
 boxes.push({
-    x: 120,
-    y: 10,
-    width: 80,
-    height: 80
-});
-boxes.push({
-    x: 170,
-    y: 50,
-    width: 80,
-    height: 80
-});
-boxes.push({
-    x: 220,
+    x: 10,
     y: 100,
-    width: 80,
-    height: 80
+    width: 30,
+    height: 200
 });
 boxes.push({
-    x: 270,
-    y: 150,
-    width: 40,
-    height: 40
+    x: 70,
+    y: 100,
+    width: 30,
+    height: 200
+});
+boxes.push({
+    x: 130,
+    y: 100,
+    width: 30,
+    height: 200
+});
+boxes.push({
+    x: 190,
+    y: 100,
+    width: 30,
+    height: 150
+});
+boxes.push({
+    x: 250,
+    y: 100,
+    width: 30,
+    height: 150
 });
 
 canvas.width = width;
@@ -80,22 +89,39 @@ function update() {
             player.jumping = true;
             player.grounded = false;
             player.velY = -player.speed * 2;
+            //jumpcounter = true;
         }
     }
     if (keys[39] || keys[68]) {
         // right arrow
         if (player.velX < player.speed) {
-            player.velX++;
+            player.velX+=0.5;
         }
     }
     if (keys[37] || keys[65]) {
         // left arrow
         if (player.velX > -player.speed) {
-            player.velX--;
+            player.velX-=0.5;
         }
     }
 
-    player.velX *= friction;
+    if ((keys[38] || keys[32] || keys[87]) && (keys[39] || keys[68])) { //right walljump
+    	if (player.rwalljump){
+    		player.velX = player.speed * 0.7;
+    		player.velY = -player.speed * 1.6;
+    	}
+    }
+    if ((keys[38] || keys[32] || keys[87]) && (keys[37] || keys[65])) { //left walljump
+    	if (player.lwalljump){
+    		player.velX = -player.speed * 0.7;
+    		player.velY = -player.speed * 1.6;
+    	}
+    }
+
+    if (player.grounded)
+    	player.velX *= friction;
+    else
+    	player.velX *= airfriction;
     player.velY += gravity;
 
     ctx.clearRect(0, 0, width, height);
@@ -103,17 +129,24 @@ function update() {
     ctx.beginPath();
     
     player.grounded = false;
+    player.rwalljump = false;
+    player.lwalljump = false;
     for (var i = 0; i < boxes.length; i++) {
         ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
         
         var dir = colCheck(player, boxes[i]);
-
+        //if (dir === null) {
+        //	player.jumpcounter = false;
+        //}
         if (dir === "l" || dir === "r") {
             player.velX = 0;
             player.jumping = false;
+            if (dir === "l") {player.rwalljump = true;}
+            if (dir === "r") {player.lwalljump = true;}
         } else if (dir === "b") {
             player.grounded = true;
             player.jumping = false;
+            //player.jumpcounter = false;
         } else if (dir === "t") {
             player.velY *= -1;
         }
